@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jul 29 09:36:22 2020
+Created on Wed Jul 29 09:48:29 2020
 
 @author: Jimenez
 """
@@ -31,7 +31,7 @@ ns = len(t)
 
 # define first-order plus dead-time approximation    
 # def fopdt(y,t,uf,Km,taum,thetam)
-def fopdt(y,t,x,Km1,Km2,Km3,Km4,taum):
+def fopdt(y,t,x,Km1,Km2,Km3,taum):
     # arguments
     #  y      = output
     #  t      = time
@@ -43,16 +43,16 @@ def fopdt(y,t,x,Km1,Km2,Km3,Km4,taum):
     Km4 = x[3]
     taum = x[4]
   #  try:
-    if t <= 1.0:
+    if t <= 1:
                 Km1 = x[0]
-                dydt = Km1*y/(y+taum)-Km4*y
+                dydt = (Km1*y)/(y+taum)**(1/3)-Km4*y 
     else: 
-        if t <= 3.0:
+        if t <= 3:
                 Km2 = x[1]
-                dydt = Km2*y/(y+taum)-Km4*y
+                dydt = (Km2*y)/(y+taum)**(1/3)-Km4*y 
         else:
                 Km3 = x[2]
-                dydt = Km3*y/(y+taum)-Km4*y
+                dydt = (Km3*y)/(y+taum)**(1/3)-Km4*y
   #  except:
     #    print('Error with time extrapolation: ' + str(t))
     #    um = 0
@@ -67,7 +67,7 @@ def sim_model(x):
     Km2 = x[1]
     Km3 = x[2]
     Km4 = x[3]
-    #beta = x[3]
+  #  beta = x[3]
     taum = x[4]
     # thetam = x[2]
     # storage for model values
@@ -92,19 +92,19 @@ def objective(x):
         obj = obj + (ym[i]-yp[i])**2    
     # return result
     return obj
-
+ 
 # initial guesses
 x0 = np.zeros(5)
-x0[0] = -300000.0 # Km1
-x0[1] = -200.0 # Km2 --> taum
-x0[2] = 25.0 # thetam
-x0[3] = 0.5
-x0[4] = 10.0
+x0[0] = -125.159 # Km1
+x0[1] = 42.100 # Km2 --> taum
+x0[2] = -95.20 # thetam
+x0[3] = 0.25
+x0[4] = -50.0
 
 # show initial objective
 print('Initial SSE Objective: ' + str(objective(x0)))
 print('Kp01: ' + str(x0[0]),', Kp02: ' + str(x0[1]), ' and Kp03: ' + str(x0[2]))
-print('Kp04: ' + str(x0[3]))
+print('K0p3: ' + str(x0[3]))
 print(' taum0: ' + str(x0[4]))
 # optimize Km, taum, thetam
 #solution = minimize(objective,x0)
@@ -119,7 +119,7 @@ x = solution.x
 print('Final SSE Objective: ' + str(objective(x)))
 
 print('Kp1: ' + str(x[0]),', Kp2: ' + str(x[1]),' and Kp3: ' + str(x[2]))
-print('Kp4: ' + str(x[3]))
+print('Kp3: ' + str(x[3]))
 print(' taum: ' + str(x[4]))
 
 # calculate model with updated parameters
@@ -128,12 +128,12 @@ ym2 = sim_model(x)
 # plot results
 plt.figure()
 #plt.subplot(2,1,1)
-plt.plot(t,yp,'kx-',linewidth=2,label='Trement Data')
+plt.plot(t,yp,'kx-',linewidth=2,label='Trememt Data')
 plt.plot(t,ym1,'b-',linewidth=2,label='Initial Guess')
 plt.plot(t,ym2,'r--',linewidth=3,label='Optimized Model')
 plt.ylabel('Number of Cells')
 plt.xlabel('Day')
-plt.title('Best Fit Model - Linear')
+plt.title('Best Fit Model - Surface')
 plt.legend(loc='best')
 # plt.subplot(2,1,2)
 # plt.plot(t,u,'bx-',linewidth=2)
@@ -142,6 +142,6 @@ plt.legend(loc='best')
 # plt.ylabel('Input Data')
 data = np.vstack((t,yp,ym2,)) # vertical stack
 data = data.T              # transpose data
-np.savetxt('datamd4.txt',data,delimiter=',')
-plt.savefig('outputmodel43Kmtaum.png',dpi=300,bbox_inches='tight')
+np.savetxt('datamd2.txt',data,delimiter=',')
+plt.savefig('outputmodel53Kmbeta.png',dpi=300,bbox_inches='tight')
 plt.show()
